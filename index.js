@@ -22,9 +22,8 @@ client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
   if (message.channel.id !== DISCORD_CHANNEL_ID) return;
 
-  const text = `👤 ${message.author.username}
-
-${message.content}`;
+  const text = `👤 *${message.author.username}*\n\n${message.content}`,
+    parse_mode: "Markdown"
 
   const url = `https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`;
 
