@@ -22,7 +22,7 @@ client.on("messageCreate", async (message) => {
   if (message.author.bot) return;
   if (message.channel.id !== DISCORD_CHANNEL_ID) return;
 
-  const text = 
+  const text = `📨 Nuovo messaggio
 👤 ${message.author.username}
 
 ${message.content}`;
