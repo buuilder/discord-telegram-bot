@@ -30,7 +30,7 @@ client.on("messageCreate", async (message) => {
   if (!message.content) return;
 
   // Costruisci il testo da inviare su Telegram
-  const text = `👤 *${message.author.username}*\n\n${message.content}`;
+  const text = `👤 *${message.author.username}*\n${message.content}`;
 
   try {
     await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
