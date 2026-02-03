@@ -20,6 +20,50 @@ client.once("ready", () => {
 });
 
 client.on("messageCreate", async (message) => {
+  if (message.author.bot) return;
+  if (message.channel.id !== DISCORD_CHANNEL_ID) return;
+
+  const username = message.author.username;
+
+  try {
+    // 📸 FOTO
+    if (message.attachments.size > 0) {
+      for (const attachment of message.attachments.values()) {
+        const caption = `👤 *${username}*\n${message.content || ""}`;
+
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            photo: attachment.url,
+            caption,
+            parse_mode: "Markdown"
+          })
+        });
+      }
+      return;
+    }
+
+    // 📝 SOLO TESTO
+    if (!message.content) return;
+
+    const text = `👤 *${username}*\n${message.content}`;
+
+    await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        chat_id: TELEGRAM_CHAT_ID,
+        text,
+        parse_mode: "Markdown"
+      })
+    });
+
+  } catch (err) {
+    console.error("Errore Discord → Telegram:", err);
+  }
+});
   // Ignora messaggi dei bot
   if (message.author.bot) return;
 
