@@ -1,7 +1,10 @@
 import { Client, GatewayIntentBits } from "discord.js";
 import fetch from "node-fetch";
 
-// ===== VARIABILI AMBIENTE =====
+// ===== RIGA INNOCUA (per trigger deploy) =====
+console.log("🚀 Deploy Discord → Telegram");
+
+// ===== VARIABILI =====
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN;
 const DISCORD_CHANNEL_ID = process.env.DISCORD_CHANNEL_ID;
 const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
@@ -12,7 +15,7 @@ if (!DISCORD_TOKEN || !DISCORD_CHANNEL_ID || !TELEGRAM_TOKEN || !TELEGRAM_CHAT_I
   process.exit(1);
 }
 
-// ===== DISCORD CLIENT =====
+// ===== DISCORD =====
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -28,15 +31,12 @@ client.once("ready", () => {
 // ===== DISCORD → TELEGRAM =====
 client.on("messageCreate", async (message) => {
   try {
-    // ignora bot
     if (message.author.bot) return;
-
-    // solo un canale
     if (message.channel.id !== DISCORD_CHANNEL_ID) return;
 
     const username = message.author.username;
 
-    // 📎 SE CI SONO ALLEGATI (foto o file)
+    // 📎 ALLEGATI
     if (message.attachments.size > 0) {
       const attachments = Array.from(message.attachments.values());
 
@@ -46,7 +46,6 @@ client.on("messageCreate", async (message) => {
           ? `👤 *${username}*\n${message.content || ""}`
           : undefined;
 
-        // 📸 IMMAGINI
         if (a.contentType?.startsWith("image/")) {
           await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendPhoto`, {
             method: "POST",
@@ -58,9 +57,7 @@ client.on("messageCreate", async (message) => {
               parse_mode: "Markdown"
             })
           });
-        } 
-        // 📎 FILE (PDF, ZIP, DOC, VIDEO, AUDIO…)
-        else {
+        } else {
           await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendDocument`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -73,19 +70,17 @@ client.on("messageCreate", async (message) => {
           });
         }
       }
-      return; // evita doppio invio del testo
+      return;
     }
 
     // 📝 SOLO TESTO
     if (message.content) {
-      const text = `👤 *${username}*\n${message.content}`;
-
       await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           chat_id: TELEGRAM_CHAT_ID,
-          text,
+          text: `👤 *${username}*\n${message.content}`,
           parse_mode: "Markdown"
         })
       });
